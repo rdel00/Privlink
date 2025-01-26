@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PrivLink</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .main-title {
+            font-size: 3rem;
+        }
+        .tagline {
+            font-size: 2rem;
+            color: #6c757d;
+        }
+        .countdown {
+            font-size: 1.5rem;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h1 class="text-center main-title">PrivLink</h1>
+                <h4 class="text-center tagline">“Simple, Secure”</h4>
+                <br>
+
+                <!-- Only one notification box -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="mt-4">
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message|safe }}
+                                    <p id="countdown"></p> <!-- Countdown message area -->
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="long_url">Enter Long URL:</label>
+                        <input type="text" id="long_url" name="long_url" class="form-control" placeholder="https://example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="validity_minutes">Valid for (minutes):</label>
+                        <input type="number" id="validity_minutes" name="validity_minutes" class="form-control" placeholder="Enter the number of minutes" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Shorten URL</button>
+                </form>
+
+                <!-- Countdown script -->
+                {% if short_url and expiration_time %}
+                    <script>
+                        // Set the expiration time for countdown
+                        var expirationTime = new Date("{{ expiration_time }}").getTime();
+
+                        // Update the countdown every second
+                        var countdownInterval = setInterval(function() {
+                            var now = new Date().getTime();
+                            var distance = expirationTime - now;
+
+                            // Calculate minutes and seconds
+                            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                            // Display the result in the countdown element
+                            if (distance > 0) {
+                                document.getElementById("countdown").innerHTML = "It will expire in " + minutes + " minutes and " + seconds + " seconds.";
+                            } else {
+                                clearInterval(countdownInterval);
+                                document.getElementById("countdown").innerHTML = "";
+                            }
+                        }, 1000);
+                    </script>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
